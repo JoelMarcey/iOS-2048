@@ -10,7 +10,8 @@
 
 #import "F3HNumberTileGameViewController.h"
 
-#import "RCTRootView.h"
+#import <React/RCTBundleURLProvider.h>
+#import <React/RCTRootView.h>
 
 @interface F3HViewController ()
 @end
@@ -29,26 +30,28 @@
 
 - (IBAction)highScoreButtonPressed:(id)sender {
     NSLog(@"High Score Button Pressed");
-    NSURL *jsCodeLocation = [NSURL
-                             URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios"];
+    NSURL *jsCodeLocation;
+    
+    jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+    
     RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
-                                                 moduleName: @"RNHighScores"
+                                                        moduleName:@"RNHighScores"
                                                  initialProperties:
-  @{
-     @"scores": @[
-       @{
-          @"name": @"Alex",
-          @"value": @"42"
-        },
-       @{
-         @"name": @"Joel",
-         @"value": @"10"
-        }
-     ]
-   }
-                                                 launchOptions:nil
-                             ];
-    UIViewController *vc = [[UIViewController alloc] init];
+                             @{
+                               @"scores": @[
+                                       @{
+                                           @"name": @"Alex",
+                                           @"value": @"42"
+                                           },
+                                       @{
+                                           @"name": @"Joel",
+                                           @"value": @"10"
+                                           }
+                                       ]
+                               }
+                                                     launchOptions:nil];
+    rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
+    UIViewController *vc = [UIViewController new];
     vc.view = rootView;
     [self presentViewController:vc animated:YES completion:nil];
 }

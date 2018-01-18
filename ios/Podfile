@@ -1,13 +1,42 @@
 # The target name is most likely the name of your project.
 target 'NumberTileGame' do
+  platform :ios, '8.0'
 
   # Your 'node_modules' directory is probably in the root of your project,
   # but if not, adjust the `:path` accordingly
   pod 'React', :path => '../node_modules/react-native', :subspecs => [
     'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
     'RCTText',
-    'RCTWebSocket', # needed for localhost testing of your app
+    'RCTNetwork',
+    'RCTWebSocket', # needed for debugging
+    'tvOS', # https://github.com/facebook/react-native/issues/17274#issuecomment-356427445
+    # Remove tvOS when this commit is released: https://github.com/facebook/react-native/commit/9954499df1841cf997b6c6d02e9a267810c6180e
+
     # Add any other subspecs you want to use in your project
   ]
+  # Explicitly include Yoga if you are using RN >= 0.42.0
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
 
+  # Third party deps podspec link
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'GLog', :podspec => '../node_modules/react-native/third-party-podspecs/GLog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+
+end
+
+# Workaround: react-native v0.52 bug issue #17274
+# node_modules/react-native/ReactCommon/yoga/yoga/YGNodePrint.cpp:208:46: Implicit conversion loses integer
+# precision: 'size_type' (aka 'unsigned long') to 'const uint32_t' (aka 'const unsigned int')
+# https://github.com/facebook/react-native/issues/17274#issuecomment-356363557
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        if target.name == 'yoga'
+            target.build_configurations.each do |config|
+                config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+                config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
+            end
+        end
+    end
 end
